@@ -8,6 +8,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import com.example.domain.exception.NoInternetException
+import com.example.domain.exception.NotFoundException
+import com.example.domain.exception.UnauthorizedException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
@@ -53,6 +55,8 @@ fun LoadState.toErrorState(): ErrorState? {
         is LoadState.Error -> {
             when (val exception = this.error) {
                 is NoInternetException -> ErrorState.NoInternet
+                is UnauthorizedException -> ErrorState.UnAuthorized
+                is NotFoundException -> ErrorState.NotFound
                 else -> ErrorState.RequestFailed(exception.message)
             }
         }
