@@ -5,5 +5,5 @@ import org.koin.core.annotation.Single
 
 @Single(binds = [GameRepository::class])
 interface GameRepository {
-    suspend fun getGames(): List<Game>
+    suspend fun getGames(pageNumber: Int): List<Game>
 }
