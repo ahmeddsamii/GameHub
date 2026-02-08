@@ -20,9 +20,11 @@ ksp = "2.0.21-1.0.28"
 koin = "4.0.0"
 navigationCompose = "2.8.3"
 kotlinxSerializationJson = "1.7.3"
+pagingCompose = "3.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
