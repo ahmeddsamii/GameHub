@@ -16,10 +16,10 @@ import org.koin.core.annotation.Single
 class GamesRepositoryImpl(
     private val httpClient: HttpClient
 ): GameRepository {
-    override suspend fun getGames(): List<Game> {
+    override suspend fun getGames(pageNumber: Int): List<Game> {
         val response = safeApiCall<PaginationResponse<GameDto>> {
             httpClient.get("games") {
-                parameter("page", 1)
+                parameter("page", pageNumber)
             }.body()
         }
         return response.results.map { it.toDomain() }
