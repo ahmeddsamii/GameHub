@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -21,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 
@@ -35,21 +36,29 @@ private fun HomeScreenContent(
     state: HomeUiState,
     interactionListener: HomeInteractionListener
 ) {
+
+    val pagedGames = state.games.collectAsLazyPagingItems()
     LazyColumn(
         state = rememberLazyListState(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(16.dp)
     ) {
-        items(state.games) { game ->
-            GameCard(
-                name = game.name,
-                imageUrl = game.imageUrl,
-                rating = game.rating,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.LightGray)
-            )
+        items(
+            count = pagedGames.itemCount,
+            key = pagedGames.itemKey { it.id }
+        ) { index ->
+            val game = pagedGames[index]
+            if (game != null) {
+                GameCard(
+                    name = game.name,
+                    imageUrl = game.imageUrl,
+                    rating = game.rating,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.LightGray)
+                )
+            }
         }
     }
 }
