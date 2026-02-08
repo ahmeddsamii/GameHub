@@ -1,7 +1,8 @@
 package com.example.presentation.navigation
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -13,17 +14,20 @@ import androidx.navigation.compose.rememberNavController
 import com.example.presentation.feature.home.HomeScreen
 
 @Composable
-fun NavHost(){
-
+fun MainNavHost() {
     val navController = rememberNavController()
 
     CompositionLocalProvider(
         LocalNavController provides navController,
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+        ) { innerPadding ->
 
             NavHost(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 navController = navController,
                 startDestination = Route.Home,
             ) {
@@ -34,7 +38,6 @@ fun NavHost(){
         }
     }
 }
-
 val LocalNavController = compositionLocalOf<NavController> {
     error("NavController not provided")
 }
