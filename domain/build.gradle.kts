@@ -16,4 +16,5 @@ kotlin {
 dependencies{
     implementation(libs.koin.annotations)
     implementation(libs.koin.core)
+    ksp(libs.koin.ksp.compiler)
 }
