@@ -36,6 +36,8 @@ The project follows **Clean Architecture** principles to ensure a separation of 
 
 **State Management:** Distinct handling for Loading, Error (with retry), and Empty states
 
+## Assumptions/Shortcuts: There is no design system due to time constrains and the caching is only caching the first page for better UX
+
 ---
 
 ## How to Run
