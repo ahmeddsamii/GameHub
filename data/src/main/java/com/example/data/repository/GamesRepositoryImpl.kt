@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import com.example.domain.entity.Game
+import com.example.domain.entity.GameDetails
 import com.example.domain.entity.Genre
 import com.example.domain.repository.GameRepository
 import com.example.domain.source.RemoteDataSource
@@ -16,5 +17,9 @@ class GamesRepositoryImpl(
 
     override suspend fun getGenres(pageNumber: Int): List<Genre> {
         return remoteDataSource.getGenres(pageNumber)
+    }
+
+    override suspend fun getGameDetailsById(id: Int): GameDetails {
+        return remoteDataSource.getGameDetailsById(id)
     }
 }
