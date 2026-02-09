@@ -9,28 +9,44 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class HomeScreenViewModel(
     private val gamesRepo: GameRepository
-): BaseViewModel<HomeUiState, HomeEffect>(
+) : BaseViewModel<HomeUiState, HomeEffect>(
     initialState = HomeUiState()
 ), HomeInteractionListener {
 
     init {
         getGames()
+        getGenres()
     }
 
-    private fun getGames(){
+    private fun getGenres() {
         tryToExecute(
             block = {
                 createPager(
                     scope = viewModelScope,
-                    pageSize = 20,
-                    loadPage = { page -> gamesRepo.getGames(page) }
+                    loadPage = { page -> gamesRepo.getGenres(page) }
                 )
             },
-            onSuccess = {updateState{copy(games = it)}}
+            onSuccess = { updateState { copy(genres = it) } }
+        )
+    }
+
+    private fun getGames(genres: String? = null) {
+        tryToExecute(
+            block = {
+                createPager(
+                    scope = viewModelScope,
+                    loadPage = { page -> gamesRepo.getGames(page, genres) }
+                )
+            },
+            onSuccess = { updateState { copy(games = it) } }
         )
     }
 
     override fun onClickGame(gameId: Int) {
         sendEffect(HomeEffect.NavigateToGameDetails(gameId))
+    }
+
+    override fun onClickGenre(slug: String) {
+        getGames(genres = slug)
     }
 }
