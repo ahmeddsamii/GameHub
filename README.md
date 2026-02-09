@@ -44,14 +44,15 @@ The project follows **Clean Architecture** principles to ensure a separation of 
 * Android Studio.
 * **Kotlin 2.0.21** (consistent with project build files).
 
-### 2. API Key Setup
-1. Get an API key from [RAWG.io](https://rawg.io/apidocs).
-2. Paste it in Local.properties (API_KEY="YOUR-API-KEY")
-
-### 3. Build and Install
+### 2. Build and Install
 1. Clone the repository
 2. Open the project in Android Studio and sync Gradle.
 3. Select the `app` module and click **Run**.
+
+### 3. API Key Setup
+1. Get an API key from [RAWG.io](https://rawg.io/apidocs).
+2. Open Local.properties file
+3. Add this line in a new line (API_KEY=YOUR_API_KEY)
 
 ### 4. Running Tests
 * [**Use Case Tests:** Right-click the `src/test` folder in the **Domain** module and select **Run 'Tests**.
