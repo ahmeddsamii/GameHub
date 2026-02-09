@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,6 +39,7 @@ import coil3.compose.AsyncImage
 import com.example.domain.entity.Game
 import com.example.domain.entity.Genre
 import com.example.presentation.shared.base.toErrorState
+import com.example.presentation.shared.component.EmptyState
 import com.example.presentation.shared.component.ErrorContent
 import com.example.presentation.shared.component.LoadingState
 import org.koin.androidx.compose.koinViewModel
@@ -84,10 +86,12 @@ private fun HomeScreenContent(
     interactionListener: HomeInteractionListener
 ) {
     var selectedGenreId by remember { mutableStateOf<Int?>(null) }
+    val gamesRefreshState = pagedGames.loadState.refresh
 
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize()
     ) {
 
         stickyHeader {
@@ -111,7 +115,7 @@ private fun HomeScreenContent(
             )
         }
 
-        if (pagedGames.loadState.refresh is LoadState.Loading) {
+        if (gamesRefreshState is LoadState.Loading) {
             item {
                 LoadingState(modifier = Modifier.fillParentMaxSize())
             }
@@ -130,6 +134,10 @@ private fun HomeScreenContent(
                     )
                 }
             }
+        }
+
+        if (pagedGames.itemCount == 0 && gamesRefreshState is LoadState.NotLoading && gamesRefreshState.toErrorState() == null) {
+            item{ EmptyState(modifier = Modifier.fillParentMaxSize()) }
         }
     }
 }
