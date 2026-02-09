@@ -11,6 +11,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.presentation.feature.details.GameDetailsScreen
 import com.example.presentation.feature.home.HomeScreen
 
 @Composable
@@ -33,6 +34,10 @@ fun MainNavHost() {
             ) {
                 composable<Route.Home> {
                     HomeScreen()
+                }
+
+                composable<Route.GameDetails> {
+                    GameDetailsScreen()
                 }
             }
         }
