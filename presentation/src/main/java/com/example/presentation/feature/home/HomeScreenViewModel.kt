@@ -4,7 +4,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.filter
 import com.example.domain.entity.Game
-import com.example.domain.repository.GameRepository
+import com.example.domain.usecase.GetAllGamesUseCase
+import com.example.domain.usecase.GetAllGenresUseCase
 import com.example.presentation.shared.base.BaseViewModel
 import com.example.presentation.shared.base.createPager
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class HomeScreenViewModel(
-    private val gamesRepo: GameRepository
+    private val getAllGamesUseCase: GetAllGamesUseCase,
+    private val getAllGenresUseCase: GetAllGenresUseCase,
 ) : BaseViewModel<HomeUiState, HomeEffect>(
     initialState = HomeUiState()
 ), HomeInteractionListener {
@@ -28,7 +30,7 @@ class HomeScreenViewModel(
             block = {
                 createPager(
                     scope = viewModelScope,
-                    loadPage = { page -> gamesRepo.getGenres(page) }
+                    loadPage = { page -> getAllGenresUseCase(page) }
                 )
             },
             onSuccess = { updateState { copy(genres = it) } }
@@ -40,7 +42,7 @@ class HomeScreenViewModel(
             block = {
                 createPager(
                     scope = viewModelScope,
-                    loadPage = { page -> gamesRepo.getGames(page, genres) }
+                    loadPage = { page -> getAllGamesUseCase(page, genres) }
                 )
             },
             onSuccess = { pager ->
