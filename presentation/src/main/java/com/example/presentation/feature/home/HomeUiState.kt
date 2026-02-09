@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.emptyFlow
 data class HomeUiState(
     val isLoading: Boolean = false,
     val games: Flow<PagingData<Game>> = emptyFlow(),
+    val filteredGames: Flow<PagingData<Game>> = emptyFlow(),
+    val query: String = "",
     val genres: Flow<PagingData<Genre>> = emptyFlow(),
     val error: ErrorState? = null
 )
