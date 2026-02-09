@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,7 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(viewModel: HomeScreenViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val pagedGames = state.games.collectAsLazyPagingItems()
+    val pagedGames = state.filteredGames.collectAsLazyPagingItems()
     val pagedGenres = state.genres.collectAsLazyPagingItems()
 
     val gamesRefreshState = pagedGames.loadState.refresh
@@ -81,6 +83,17 @@ private fun HomeScreenContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        stickyHeader {
+            SearchField(
+                onSearch = interactionListener::onSearch,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White)
+            )
+        }
+
         item {
             GenreFilterRow(
                 genres = pagedGenres,
@@ -113,6 +126,29 @@ private fun HomeScreenContent(
             }
         }
     }
+}
+
+@Composable
+private fun SearchField(
+    onSearch: (query: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var query by remember { mutableStateOf("") }
+
+    TextField(
+        modifier = modifier,
+        placeholder = { Text("Search For Games...") },
+        value = query,
+        onValueChange = {
+            query = it
+            onSearch(it)
+        },
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
+        )
+    )
 }
 
 @Composable
