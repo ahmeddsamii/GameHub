@@ -63,4 +63,6 @@ dependencies {
     implementation(libs.koin.annotations)
     implementation(libs.koin.core)
     ksp(libs.koin.ksp.compiler)
+    implementation(libs.bundles.room)
+    ksp(libs.androidx.room.compiler)
 }
