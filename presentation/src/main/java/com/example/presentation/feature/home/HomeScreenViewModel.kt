@@ -1,9 +1,14 @@
 package com.example.presentation.feature.home
 
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.filter
+import com.example.domain.entity.Game
 import com.example.domain.repository.GameRepository
 import com.example.presentation.shared.base.BaseViewModel
 import com.example.presentation.shared.base.createPager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -38,8 +43,35 @@ class HomeScreenViewModel(
                     loadPage = { page -> gamesRepo.getGames(page, genres) }
                 )
             },
-            onSuccess = { updateState { copy(games = it) } }
+            onSuccess = { pager ->
+                onGetGamesSuccess(pager)
+            }
         )
+    }
+
+    private fun onGetGamesSuccess(pager: Flow<PagingData<Game>>) {
+        updateState {
+            copy(
+                games = pager,
+                filteredGames = pager.map { list ->
+                    if (query.isBlank()) list
+                    else list.filter { it.name.contains(query, ignoreCase = true) }
+                }
+            )
+        }
+    }
+
+    override fun onSearch(query: String) {
+        updateState { copy(query = query) }
+
+        updateState {
+            copy(
+                filteredGames = state.value.games.map { list ->
+                    if (query.isBlank()) list
+                    else list.filter { it.name.contains(query, ignoreCase = true) }
+                }
+            )
+        }
     }
 
     override fun onClickGame(gameId: Int) {
