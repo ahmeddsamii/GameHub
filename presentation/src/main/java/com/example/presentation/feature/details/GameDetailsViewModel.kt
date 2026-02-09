@@ -2,7 +2,7 @@ package com.example.presentation.feature.details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
-import com.example.domain.repository.GameRepository
+import com.example.domain.usecase.GetGameDetailsUseCase
 import com.example.presentation.navigation.Route
 import com.example.presentation.shared.base.BaseViewModel
 import org.koin.android.annotation.KoinViewModel
@@ -10,7 +10,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class GameDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val gameRepository: GameRepository
+    private val gameDetailsUseCase: GetGameDetailsUseCase
 ) : BaseViewModel<GameDetailsUiState, GameDetailsEffect>(GameDetailsUiState()),
     GameDetailsInteractionListener {
 
@@ -22,7 +22,7 @@ class GameDetailsViewModel(
 
     private fun getGameDetailsById(id: Int) {
         tryToExecute(
-            block = { gameRepository.getGameDetailsById(id) },
+            block = { gameDetailsUseCase(id) },
             onSuccess = { game ->
                 updateState { copy(gameDetails = game) }
             },
