@@ -2,6 +2,7 @@ package com.example.presentation.feature.details
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
+import com.example.domain.repository.GameRepository
 import com.example.presentation.navigation.Route
 import com.example.presentation.shared.base.BaseViewModel
 import org.koin.android.annotation.KoinViewModel
@@ -9,10 +10,35 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class GameDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-): BaseViewModel<GameDetailsUiState, GameDetailsEffect>(GameDetailsUiState()) {
-    val id = savedStateHandle.toRoute<Route.GameDetails>().gameId
+    private val gameRepository: GameRepository
+) : BaseViewModel<GameDetailsUiState, GameDetailsEffect>(GameDetailsUiState()),
+    GameDetailsInteractionListener {
 
-    fun getGameId(): Int{
-        return id
+    val gameId = savedStateHandle.toRoute<Route.GameDetails>().gameId
+
+    init {
+        getGameDetailsById(gameId)
+    }
+
+    private fun getGameDetailsById(id: Int) {
+        tryToExecute(
+            block = { gameRepository.getGameDetailsById(id) },
+            onSuccess = { game ->
+                updateState { copy(gameDetails = game) }
+            },
+            onError = {
+                updateState { copy(error = it) }
+            },
+            onEnd = { updateState { copy(isLoading = false) } }
+        )
+    }
+
+    override fun onClickBack() {
+        sendEffect(GameDetailsEffect.NavigateBack)
+    }
+
+    override fun onClickRetry() {
+        updateState { copy(error = null) }
+        getGameDetailsById(gameId)
     }
 }
