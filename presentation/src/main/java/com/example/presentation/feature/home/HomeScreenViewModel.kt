@@ -81,4 +81,10 @@ class HomeScreenViewModel(
     override fun onClickGenre(slug: String) {
         getGames(genres = slug)
     }
+
+    override fun onClickRetry() {
+        updateState { copy(error = null) }
+        getGames()
+        getGenres()
+    }
 }
