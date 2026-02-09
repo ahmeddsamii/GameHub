@@ -54,11 +54,17 @@ fun HomeScreen(viewModel: HomeScreenViewModel = koinViewModel()) {
 
     when {
         gamesRefreshState is LoadState.Error -> {
-            ErrorContent(gamesRefreshState.toErrorState())
+            ErrorContent(
+                error = gamesRefreshState.toErrorState(),
+                onRetryClick = viewModel::onClickRetry
+            )
         }
 
         genresRefreshState is LoadState.Error -> {
-            ErrorContent(genresRefreshState.toErrorState())
+            ErrorContent(
+                error = genresRefreshState.toErrorState(),
+                onRetryClick = viewModel::onClickRetry
+            )
         }
 
         else -> {
