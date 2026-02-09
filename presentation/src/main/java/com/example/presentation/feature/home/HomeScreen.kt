@@ -38,10 +38,13 @@ import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import com.example.domain.entity.Game
 import com.example.domain.entity.Genre
+import com.example.presentation.navigation.LocalNavController
+import com.example.presentation.navigation.Route
 import com.example.presentation.shared.base.toErrorState
 import com.example.presentation.shared.component.EmptyState
 import com.example.presentation.shared.component.ErrorContent
 import com.example.presentation.shared.component.LoadingState
+import com.example.presentation.utils.Listen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -75,6 +78,17 @@ fun HomeScreen(viewModel: HomeScreenViewModel = koinViewModel()) {
                 pagedGenres = pagedGenres,
                 interactionListener = viewModel
             )
+        }
+    }
+
+    val effect by viewModel.effect.collectAsStateWithLifecycle(initialValue = null)
+    val navController = LocalNavController.current
+
+    effect?.Listen { currentEffect ->
+        when(currentEffect) {
+            is HomeEffect.NavigateToGameDetails -> {
+                navController.navigate(Route.GameDetails(currentEffect.gameId))
+            }
         }
     }
 }
@@ -129,7 +143,7 @@ private fun HomeScreenContent(
                         name = game.name,
                         imageUrl = game.imageUrl,
                         rating = game.rating,
-                        onClick = { /* TODO: Handle game click */ },
+                        onClick = { interactionListener.onClickGame(game.id) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
