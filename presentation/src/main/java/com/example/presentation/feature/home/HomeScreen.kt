@@ -136,7 +136,7 @@ private fun HomeScreenContent(
         } else {
             items(
                 count = pagedGames.itemCount,
-                key = pagedGames.itemKey { it.id }
+                key = pagedGames.itemKey { game -> "game-${game.id}-${pagedGames.itemSnapshotList.indexOf(game)}" }
             ) { index ->
                 pagedGames[index]?.let { game ->
                     GameCard(
@@ -194,7 +194,7 @@ private fun GenreFilterRow(
     ) {
         items(
             count = genres.itemCount,
-            key = genres.itemKey { it.id }
+            key = genres.itemKey { "genre-${it.id}" }
         ) { index ->
             genres[index]?.let { genre ->
                 FilterChip(
