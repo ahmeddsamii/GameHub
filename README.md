@@ -23,11 +23,17 @@ The project follows **Clean Architecture** principles to ensure a separation of 
 
 ## Features Implemented
 **Games List Screen:** Displays name, image, and rating for each game
+
 **Pagination:** Automatically loads additional results as the user scrolls
+
 **Local Search:** Filters already-loaded games in-memory without additional API calls
+
 **Genre Selection:** Fetches genres directly from the API to allow users to browse by category
+
 **Game Details Screen:** Shows name, image, release date, rating, and description
+
 **Offline Support:** Implemented an **offline-first strategy** using Room to cache results for offline viewing
+
 **State Management:** Distinct handling for Loading, Error (with retry), and Empty states
 
 ---
