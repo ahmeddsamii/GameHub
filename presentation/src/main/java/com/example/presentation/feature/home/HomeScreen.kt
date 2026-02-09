@@ -1,18 +1,28 @@
 package com.example.presentation.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,43 +30,121 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import com.example.domain.entity.Game
+import com.example.domain.entity.Genre
+import com.example.presentation.shared.base.toErrorState
+import com.example.presentation.shared.component.ErrorContent
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    HomeScreenContent(state, viewModel)
+
+    val pagedGames = state.games.collectAsLazyPagingItems()
+    val pagedGenres = state.genres.collectAsLazyPagingItems()
+
+    val gamesRefreshState = pagedGames.loadState.refresh
+    val genresRefreshState = pagedGenres.loadState.refresh
+
+    when {
+        gamesRefreshState is LoadState.Error -> {
+            ErrorContent(gamesRefreshState.toErrorState())
+        }
+
+        genresRefreshState is LoadState.Error -> {
+            ErrorContent(genresRefreshState.toErrorState())
+        }
+
+        else -> {
+            HomeScreenContent(
+                pagedGames = pagedGames,
+                pagedGenres = pagedGenres,
+                interactionListener = viewModel
+            )
+        }
+    }
 }
 
 @Composable
 private fun HomeScreenContent(
-    state: HomeUiState,
+    pagedGames: LazyPagingItems<Game>,
+    pagedGenres: LazyPagingItems<Genre>,
     interactionListener: HomeInteractionListener
 ) {
+    var selectedGenreId by remember { mutableStateOf<Int?>(null) }
 
-    val pagedGames = state.games.collectAsLazyPagingItems()
     LazyColumn(
-        state = rememberLazyListState(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            GenreFilterRow(
+                genres = pagedGenres,
+                selectedGenreId = selectedGenreId,
+                onGenreClick = { id, slug ->
+                    selectedGenreId = if (selectedGenreId == id) null else id
+                    interactionListener.onClickGenre(slug)
+                }
+            )
+        }
+
+        if (pagedGames.loadState.refresh is LoadState.Loading) {
+            item {
+                Box(
+                    modifier = Modifier.fillParentMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        } else {
+            items(
+                count = pagedGames.itemCount,
+                key = pagedGames.itemKey { it.id }
+            ) { index ->
+                pagedGames[index]?.let { game ->
+                    GameCard(
+                        name = game.name,
+                        imageUrl = game.imageUrl,
+                        rating = game.rating,
+                        onClick = { /* TODO: Handle game click */ },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GenreFilterRow(
+    genres: LazyPagingItems<Genre>,
+    selectedGenreId: Int?,
+    onGenreClick: (id: Int, slug: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyRow(
+        modifier = modifier
+            .height(56.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(
-            count = pagedGames.itemCount,
-            key = pagedGames.itemKey { it.id }
+            count = genres.itemCount,
+            key = genres.itemKey { it.id }
         ) { index ->
-            val game = pagedGames[index]
-            if (game != null) {
-                GameCard(
-                    name = game.name,
-                    imageUrl = game.imageUrl,
-                    rating = game.rating,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.LightGray)
+            genres[index]?.let { genre ->
+                FilterChip(
+                    selected = selectedGenreId == genre.id,
+                    onClick = {
+                        onGenreClick(genre.id, genre.slug)
+                    },
+                    label = { Text(genre.name) }
                 )
             }
         }
@@ -68,25 +156,38 @@ private fun GameCard(
     name: String,
     imageUrl: String,
     rating: Double,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier,
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.LightGray)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         AsyncImage(
             model = imageUrl,
-            contentDescription = null,
-            modifier = Modifier.size(100.dp),
-            contentScale = ContentScale.FillBounds
+            contentDescription = "Game: $name",
+            modifier = Modifier
+                .size(100.dp)
+                .clip(RoundedCornerShape(16.dp)),
+            contentScale = ContentScale.Crop
         )
 
         Column(
             modifier = Modifier.align(Alignment.CenterVertically),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(name)
-            Text(rating.toString())
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "⭐ $rating",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
